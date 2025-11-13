@@ -1,7 +1,6 @@
 import React, {useState} from 'react'
 import axios from 'axios'
-import { useContext } from 'react'
-import { AuthContext } from '../context/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import Calendar from './Calendar'
 
@@ -44,8 +43,8 @@ export default function Find(){
     }finally{setLoading(false)}
   }
 
-  const { user } = useContext(AuthContext)
-  const nav = useNavigate()
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
   // listen for cross-component booking events triggered by result buttons
   React.useEffect(()=>{
@@ -109,7 +108,7 @@ function renderResults(items){
                 if(!user){
                   // redirect to login
                   showToast('Please sign in to book an appointment')
-                  nav('/login')
+                  navigate('/auth/login')
                   return
                 }
                 try {
