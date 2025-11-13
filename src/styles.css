@@ -274,6 +274,20 @@ input:focus {
 .footer-links a{text-decoration:none;color:var(--muted)}
 .toast{position:fixed;right:18px;bottom:18px;background:#07323a;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(7,50,58,0.2);display:none}
 
+/* Dashboard styles */
+.dashboard{padding:28px}
+.dashboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.dashboard-header h1{margin:0;font-size:28px}
+.dashboard-grid{display:grid;grid-template-columns:1fr 320px;gap:20px}
+.appointments-section,.recommended-doctors,.upcoming-reminders{background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow-md)}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.view-toggle button{border:1px solid rgba(7,50,58,0.1);background:#fff;padding:8px 10px;border-radius:8px;margin-left:6px;cursor:pointer}
+.view-toggle .active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.empty-state{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);padding:20px}
+.appointment-card{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid rgba(7,50,58,0.06);padding:12px;border-radius:10px;margin:8px 0}
+.doctor-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(7,50,58,0.08)}
+.doctor-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(7,50,58,0.06);padding:10px;border-radius:10px;margin:8px 0}
+
 /* Auth page styles */
 .auth-page{display:flex;justify-content:center;align-items:center;padding:48px 0}
 .auth-card{background:var(--card);padding:28px;border-radius:12px;max-width:480px;width:100%;box-shadow:0 12px 40px rgba(3,18,22,0.06);animation:fadeInUp .5s ease both}

@@ -11,7 +11,7 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const from = null; // Always go to dashboard after login as requested
+  const from = location.state?.from || null; // If came from booking, return there
 
   const validateForm = () => {
     const newErrors = {}
@@ -36,7 +36,7 @@ export default function Login() {
     setLoading(false)
     if (result.success) {
       const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/dashboard'
-      navigate(fallback, { replace: true })
+      navigate(from || fallback, { replace: true })
     }
   }
 
@@ -45,7 +45,7 @@ export default function Login() {
     setTimeout(() => {
       localStorage.setItem('medisync_token', `${provider}-oauth-token`)
       const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/dashboard'
-      navigate(fallback, { replace: true })
+      navigate(from || fallback, { replace: true })
     }, 1000)
   }
 

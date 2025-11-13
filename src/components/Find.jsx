@@ -163,7 +163,8 @@ function renderResults(items, setBookingAppt, user, navigate){
                     onClick={() => {
                       if(!user){
                         showToast('Please sign in to book an appointment')
-                        navigate('/auth/login')
+                        const target = '/#find'
+                        navigate('/auth/login', { state: { from: target } })
                         return
                       }
                       // Open booking modal with selected slot
