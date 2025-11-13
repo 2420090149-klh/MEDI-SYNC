@@ -51,37 +51,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <AccessibilityToolbar />
-      <ChatBot />
       <Routes>
-        {/* Landing Page Route */}
-        <Route
-          path="/"
-          element={
-            <>
-              <a className="skip-link" href="#main">Skip to content</a>
-              <Header />
-              <main id="main" className="landing-page">
-                <Hero />
-                <Problems />
-                <Features />
-                <Technology />
-                <Find />
-                <Footer />
-              </main>
-              {showPermissions && (
-                <PermissionDialog onClose={() => setShowPermissions(false)} />
-              )}
-            </>
-          }
-        />
-
-        {/* Auth Routes */}
+        {/* Public Auth Routes */}
         <Route
           path="/auth/*"
           element={
             <div className="auth-layout">
-              <Header minimal={true} />
               <main id="main" className="auth-pages">
                 <Routes>
                   <Route path="login" element={<Login />} />
@@ -92,11 +67,39 @@ export default function App() {
           }
         />
 
+        {/* Protected Landing Page Route */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <>
+                <AccessibilityToolbar />
+                <ChatBot />
+                <a className="skip-link" href="#main">Skip to content</a>
+                <Header />
+                <main id="main" className="landing-page">
+                  <Hero />
+                  <Problems />
+                  <Features />
+                  <Technology />
+                  <Find />
+                  <Footer />
+                </main>
+                {showPermissions && (
+                  <PermissionDialog onClose={() => setShowPermissions(false)} />
+                )}
+              </>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Dashboard Route */}
         <Route
           path="/dashboard/*"
           element={
             <ProtectedRoute>
+              <AccessibilityToolbar />
+              <ChatBot />
               <div className="dashboard-layout">
                 <Header />
                 <main id="main">
