@@ -131,6 +131,22 @@ export default function ChatBot() {
 
   const analyzeSymptomsAndSuggest = (userInput) => {
     const lowerInput = userInput.toLowerCase();
+    
+    // Check for greetings first
+    const greetingWords = ['hi', 'hello', 'hey', 'namaste', 'hola', 'greetings', 'good morning', 'good evening'];
+    const isGreeting = greetingWords.some(word => 
+      lowerInput.trim() === word || 
+      lowerInput === word || 
+      (lowerInput.length < 20 && lowerInput.includes(word))
+    );
+    
+    if (isGreeting) {
+      return {
+        text: texts.welcome + ' ' + texts.askSymptom,
+        specialists: null
+      };
+    }
+    
     const matchedSpecialties = new Set();
 
     // Check for symptom keywords

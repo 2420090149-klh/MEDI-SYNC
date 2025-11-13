@@ -105,13 +105,15 @@ function generateMockSlots(specialty, date) {
   const doctors = getDoctorsBySpecialty(specialty);
   
   if (doctors.length > 0) {
-    // Use real doctors
+    // Use real doctors - limit to 2-3 slots per doctor to avoid overwhelming list
     const results = [];
     doctors.forEach(doctor => {
       const slots = getAvailableSlots(doctor.id, date);
-      slots.forEach(timeSlot => {
+      // Take only first 3 slots for each doctor
+      const limitedSlots = slots.slice(0, 3);
+      limitedSlots.forEach(timeSlot => {
         results.push({
-          id: `${doctor.id}-${timeSlot}`,
+          id: `${doctor.id}-${timeSlot.replace(/[: ]/g, '')}-${Math.random()}`,
           doctor: doctor.name,
           specialty: doctor.specialty,
           hospital: doctor.hospital,
