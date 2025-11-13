@@ -19,7 +19,17 @@ export default function Header() {
         </nav>
 
         <div className="header-top-controls">
-          <a href="#contact" className="cta pulse-animation">{t('nav.requestDemo')}</a>
+          <button 
+            className="btn btn-primary cta pulse-animation"
+            onClick={() => {
+              const contactSection = document.getElementById('contact') || document.getElementById('find');
+              if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            {t('nav.requestDemo')}
+          </button>
           <div className="language-wrap">
             <LanguageSelector />
           </div>

@@ -5,8 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 export default function Hero() {
   const [contentRef, isContentVisible] = useScrollReveal();
   const parallaxRef = useParallax(0.3);
-  const { t } = useLanguage();
-  const { currentLanguage } = useLanguage();
+  const { t, currentLanguage, languages } = useLanguage();
   
   useSmoothScroll();
 
@@ -36,17 +35,14 @@ export default function Hero() {
               onClick={() => {
                 const text = `${t('hero.title')} - ${t('hero.subtitle')}. ${t('hero.description')}`;
                 const utter = new SpeechSynthesisUtterance(text);
-                // Try to set language for the utterance
-                try {
-                  utter.lang = currentLanguage || 'en';
-                } catch (e) {
-                  // ignore if not supported
-                }
+                // Set proper language for the utterance
+                const langCode = languages[currentLanguage]?.speechLang || 'en-US';
+                utter.lang = langCode;
                 window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(utter);
               }}
             >
-              🔊 {t('common.readAloud') || 'Read Aloud'}
+              🔊 {t('common.readAloud')}
             </button>
           </div>
           <ul className="trust-list">

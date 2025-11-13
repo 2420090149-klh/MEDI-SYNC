@@ -2,15 +2,21 @@ import React, { createContext, useContext, useState, useMemo } from 'react';
 import en from '../locales/en.json';
 import hi from '../locales/hi.json';
 import bho from '../locales/bho.json';
+import te from '../locales/te.json';
+import ta from '../locales/ta.json';
+import kn from '../locales/kn.json';
 
-// Minimal language metadata for the selector UI
+// Language metadata with proper language codes for text-to-speech
 const languages = {
-  en: { name: 'English', nativeName: 'English', flag: '🇬🇧' },
-  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳' },
-  bho: { name: 'Bhojpuri', nativeName: 'भोजपुरी', flag: '🇮🇳' }
+  en: { name: 'English', nativeName: 'English', flag: '🇬🇧', speechLang: 'en-US' },
+  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', speechLang: 'hi-IN' },
+  te: { name: 'Telugu', nativeName: 'తెలుగు', flag: '🇮🇳', speechLang: 'te-IN' },
+  ta: { name: 'Tamil', nativeName: 'தமிழ்', flag: '🇮🇳', speechLang: 'ta-IN' },
+  kn: { name: 'Kannada', nativeName: 'ಕನ್ನಡ', flag: '🇮🇳', speechLang: 'kn-IN' },
+  bho: { name: 'Bhojpuri', nativeName: 'भोजपुरी', flag: '🇮🇳', speechLang: 'hi-IN' }
 };
 
-const translations = { en, hi, bho };
+const translations = { en, hi, bho, te, ta, kn };
 
 const LanguageContext = createContext();
 
