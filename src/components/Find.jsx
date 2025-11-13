@@ -105,38 +105,37 @@ function generateMockSlots(specialty, date) {
   const doctors = getDoctorsBySpecialty(specialty);
   
   if (doctors.length > 0) {
-    // Use real doctors - limit to 2-3 slots per doctor to avoid overwhelming list
+    // Group slots by doctor to show each doctor once with multiple time options
     const results = [];
     doctors.forEach(doctor => {
       const slots = getAvailableSlots(doctor.id, date);
-      // Take only first 3 slots for each doctor
-      const limitedSlots = slots.slice(0, 3);
-      limitedSlots.forEach(timeSlot => {
-        results.push({
-          id: `${doctor.id}-${timeSlot.replace(/[: ]/g, '')}-${Math.random()}`,
-          doctor: doctor.name,
-          specialty: doctor.specialty,
-          hospital: doctor.hospital,
-          slot: `${date} ${timeSlot}`,
-          rating: doctor.rating,
-          experience: doctor.experience
-        });
+      // Take only first 4 slots for each doctor
+      const limitedSlots = slots.slice(0, 4);
+      results.push({
+        id: doctor.id,
+        doctor: doctor.name,
+        specialty: doctor.specialty,
+        hospital: doctor.hospital,
+        availableSlots: limitedSlots.map(slot => `${date} ${slot}`),
+        rating: doctor.rating,
+        experience: doctor.experience,
+        phone: doctor.phone
       });
     });
     return results;
   }
   
   // Fallback to mock data if no real doctors found
-  const slots = ["09:00 AM","10:30 AM","12:00 PM","02:00 PM","04:30 PM"];
-  return slots.map((s,i)=>({
-    id: `mock-${i}`,
-    doctor: `Dr. ${specialty.split(' ')[0]} ${i+1}`,
+  const slots = ["09:00 AM","10:30 AM","12:00 PM","02:00 PM"];
+  return [{
+    id: `mock-1`,
+    doctor: `Dr. ${specialty.split(' ')[0]} Specialist`,
     specialty: specialty,
     hospital: "General Hospital",
-    slot: `${date} ${s}`,
+    availableSlots: slots.map(s => `${date} ${s}`),
     rating: 4.5,
     experience: "10 years"
-  }));
+  }];
 }
 
 function renderResults(items, setBookingAppt, user, navigate){
@@ -144,7 +143,7 @@ function renderResults(items, setBookingAppt, user, navigate){
   return (
     <div className="results-grid" role="list">
       {items.map((it,idx)=>(
-        <div key={idx} className="result-card enhanced" role="listitem" tabIndex={0}>
+        <div key={it.id || idx} className="result-card enhanced" role="listitem" tabIndex={0}>
           <div className="rc-left">
             <div className="doctor-info">
               <strong className="doctor-name">{it.doctor}</strong>
@@ -154,26 +153,28 @@ function renderResults(items, setBookingAppt, user, navigate){
                 {it.experience && <span className="experience">👨‍⚕️ {it.experience}</span>}
               </div>
             </div>
-            <div className="slot-info">
-              <span className="slot-date">📅 {it.slot.split(' ')[0]}</span>
-              <span className="slot-time">🕐 {it.slot.split(' ')[1]} {it.slot.split(' ')[2]}</span>
+            <div className="available-slots-section">
+              <div className="slots-label">Available Time Slots:</div>
+              <div className="slots-grid">
+                {it.availableSlots && it.availableSlots.map((slot, slotIdx) => (
+                  <button
+                    key={slotIdx}
+                    className="slot-btn"
+                    onClick={() => {
+                      if(!user){
+                        showToast('Please sign in to book an appointment')
+                        navigate('/auth/login')
+                        return
+                      }
+                      // Open booking modal with selected slot
+                      setBookingAppt({...it, slot})
+                    }}
+                  >
+                    🕐 {slot.split(' ')[1]} {slot.split(' ')[2]}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="rc-right">
-            <button
-              className="btn btn-primary book-btn"
-              onClick={() => {
-                if(!user){
-                  showToast('Please sign in to book an appointment')
-                  navigate('/auth/login')
-                  return
-                }
-                // Open booking modal
-                setBookingAppt(it)
-              }}
-            >
-              📋 Book Now
-            </button>
           </div>
         </div>
       ))}

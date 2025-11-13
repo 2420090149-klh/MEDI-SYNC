@@ -290,13 +290,22 @@ input:focus {
 .result-card:focus, .cal-slot:focus{outline:3px solid rgba(7,120,180,0.14)}
 
 /* Enhanced doctor cards */
-.result-card.enhanced{padding:16px;gap:16px}
-.result-card .rc-left{flex:1;display:flex;flex-direction:column;gap:12px}
+.result-card.enhanced{padding:20px;gap:16px;flex-direction:column}
+.result-card .rc-left{flex:1;display:flex;flex-direction:column;gap:16px;width:100%}
 .doctor-info{display:flex;flex-direction:column;gap:6px}
-.doctor-name{font-size:18px;color:var(--primary);margin:0}
-.hospital-name{font-size:13px;color:#666;font-weight:500}
-.doctor-meta{display:flex;gap:12px;font-size:12px;color:#888}
+.doctor-name{font-size:20px;color:var(--primary);margin:0}
+.hospital-name{font-size:14px;color:#666;font-weight:500}
+.doctor-meta{display:flex;gap:16px;font-size:13px;color:#888}
 .doctor-meta .rating,.doctor-meta .experience{display:flex;align-items:center;gap:4px}
+
+/* Available slots section */
+.available-slots-section{display:flex;flex-direction:column;gap:12px;width:100%}
+.slots-label{font-size:14px;font-weight:600;color:#333}
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.slot-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:10px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;justify-content:center;gap:6px}
+.slot-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(102,126,234,0.4)}
+.slot-btn:active{transform:translateY(0)}
+
 .slot-info{display:flex;gap:12px;font-size:14px;color:#555;padding:8px;background:#f8f9fa;border-radius:8px}
 .slot-date,.slot-time{display:flex;align-items:center;gap:4px}
 .book-btn{white-space:nowrap;padding:10px 20px !important;font-weight:600}
