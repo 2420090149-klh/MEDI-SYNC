@@ -4,7 +4,7 @@ import hi from '../locales/hi.json';
 
 // Minimal language metadata for the selector UI
 const languages = {
-  en: { name: 'English', nativeName: 'English', flag: '��' },
+  en: { name: 'English', nativeName: 'English', flag: '🇬🇧' },
   hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳' }
 };
 
