@@ -13,13 +13,13 @@ export default function Header() {
         <a className="brand animated-logo" href="/">MediSync</a>
 
         <nav className={`site-nav ${open ? 'show' : ''}`} id="siteNav" aria-label="Primary">
-          <a href="#features" className="nav-link">{t('nav?.features' )}</a>
-          <a href="#problems" className="nav-link">{t('nav?.problems')}</a>
-          <a href="#tech" className="nav-link">{t('nav?.technology')}</a>
+          <a href="#features" className="nav-link">{t('nav.features')}</a>
+          <a href="#problems" className="nav-link">{t('nav.problems')}</a>
+          <a href="#tech" className="nav-link">{t('nav.technology')}</a>
         </nav>
 
         <div className="header-top-controls">
-          <a href="#contact" className="cta pulse-animation">{t('nav?.requestDemo') || 'Request Demo'}</a>
+          <a href="#contact" className="cta pulse-animation">{t('nav.requestDemo')}</a>
           <div className="language-wrap">
             <LanguageSelector />
           </div>

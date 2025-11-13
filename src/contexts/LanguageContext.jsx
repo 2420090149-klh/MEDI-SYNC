@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import en from '../locales/en.json';
 import hi from '../locales/hi.json';
+import bho from '../locales/bho.json';
 
 // Minimal language metadata for the selector UI
 const languages = {
   en: { name: 'English', nativeName: 'English', flag: '🇬🇧' },
-  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳' }
+  hi: { name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳' },
+  bho: { name: 'Bhojpuri', nativeName: 'भोजपुरी', flag: '🇮🇳' }
 };
 
-const translations = { en, hi };
+const translations = { en, hi, bho };
 
 const LanguageContext = createContext();
 
