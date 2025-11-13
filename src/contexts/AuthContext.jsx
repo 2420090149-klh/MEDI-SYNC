@@ -27,14 +27,28 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async (token) => {
     try {
+      // For demo: check if it's the demo token
+      if (token === 'demo-token-medisync') {
+        setUser({
+          id: 'demo-user',
+          email: 'demo@medisync.example',
+          name: 'Demo User',
+          role: 'patient'
+        });
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      // Try real API call
       const response = await axios.get('https://api.medisync.com/v1/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(response.data);
       setError(null);
     } catch (err) {
+      // Silently clear invalid tokens (don't show error on page load)
       localStorage.removeItem('medisync_token');
-      setError('Session expired. Please login again.');
       setUser(null);
     } finally {
       setLoading(false);
@@ -44,15 +58,32 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const response = await axios.post('https://api.medisync.com/v1/auth/login', {
-        email,
-        password
-      });
-      const { token, user: userData } = response.data;
-      localStorage.setItem('medisync_token', token);
-      setUser(userData);
+      
+      // Mock login for demo - accept any credentials
+      const mockUser = {
+        id: email === 'demo@medisync.example' ? 'demo-user' : 'user-' + Date.now(),
+        email: email,
+        name: email.split('@')[0],
+        role: 'patient'
+      };
+      
+      const mockToken = email === 'demo@medisync.example' ? 'demo-token-medisync' : 'mock-token-' + Date.now();
+      
+      localStorage.setItem('medisync_token', mockToken);
+      setUser(mockUser);
       setError(null);
       return { success: true };
+      
+      // Real API call (commented out for demo)
+      // const response = await axios.post('https://api.medisync.com/v1/auth/login', {
+      //   email,
+      //   password
+      // });
+      // const { token, user: userData } = response.data;
+      // localStorage.setItem('medisync_token', token);
+      // setUser(userData);
+      // setError(null);
+      // return { success: true };
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
       return { success: false, error: err.message };
@@ -64,12 +95,29 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setLoading(true);
-      const response = await axios.post('https://api.medisync.com/v1/auth/register', userData);
-      const { token, user: newUser } = response.data;
-      localStorage.setItem('medisync_token', token);
-      setUser(newUser);
+      
+      // Mock registration for demo
+      const mockUser = {
+        id: 'user-' + Date.now(),
+        email: userData.email,
+        name: userData.name || userData.email.split('@')[0],
+        role: 'patient'
+      };
+      
+      const mockToken = 'mock-token-' + Date.now();
+      
+      localStorage.setItem('medisync_token', mockToken);
+      setUser(mockUser);
       setError(null);
       return { success: true };
+      
+      // Real API call (commented out for demo)
+      // const response = await axios.post('https://api.medisync.com/v1/auth/register', userData);
+      // const { token, user: newUser } = response.data;
+      // localStorage.setItem('medisync_token', token);
+      // setUser(newUser);
+      // setError(null);
+      // return { success: true };
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
       return { success: false, error: err.message };

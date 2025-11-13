@@ -10,6 +10,7 @@ export default function Login() {
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors = {}
@@ -40,44 +41,33 @@ export default function Login() {
     if (!validateForm()) return
 
     setLoading(true)
-    // Mock login - in production this would validate with your backend
-    setTimeout(() => {
-      const user = { 
-        name: formData.email.split('@')[0],
-        email: formData.email,
-        token: 'login-token'
-      }
-      login(user)
-      setLoading(false)
-      nav('/')
-    }, 800)
+    // Mock login for demo purposes
+    const result = await login(formData.email, formData.password)
+    setLoading(false)
+    
+    if (result.success) {
+      navigate('/dashboard')
+    }
   }
 
-  const handleGoogle = () => {
+  const handleGoogle = async () => {
     setLoading(true)
-    setTimeout(() => {
-      const user = {
-        name: 'Google User',
-        email: 'google@example.com',
-        token: 'google-token'
-      }
-      login(user)
-      setLoading(false)
-      nav('/')
-    }, 800)
+    // Mock Google sign-in
+    const result = await login('google@example.com', 'google-oauth')
+    setLoading(false)
+    
+    if (result.success) {
+      navigate('/dashboard')
+    }
   }
 
   const handleDemo = () => {
     setLoading(true)
+    // Set demo token directly
+    localStorage.setItem('medisync_token', 'demo-token-medisync')
     setTimeout(() => {
-      const user = {
-        name: 'Demo User',
-        email: 'demo@medisync.example',
-        token: 'demo-token'
-      }
-      login(user)
       setLoading(false)
-      nav('/')
+      window.location.href = '/dashboard'
     }, 400)
   }
 
@@ -147,9 +137,9 @@ export default function Login() {
 
         <p className="muted">
           Don't have an account?{' '}
-          <a href="/register" onClick={(e) => { e.preventDefault(); nav('/register'); }}>
+          <Link to="/auth/register">
             Create one
-          </a>
+          </Link>
         </p>
       </div>
     </div>

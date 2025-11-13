@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../context/AuthContext'
+import React, { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Register() {
-  const { login } = useContext(AuthContext)
+  const { register } = useAuth()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,7 +13,6 @@ export default function Register() {
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
-  const nav = useNavigate()
 
   const validateForm = () => {
     const newErrors = {}
@@ -48,31 +48,25 @@ export default function Register() {
     if (!validateForm()) return
 
     setLoading(true)
-    // Mock registration - in production this would call your backend
-    setTimeout(() => {
-      const user = { 
-        name: formData.name,
-        email: formData.email,
-        token: 'new-user-token'
-      }
-      login(user)
-      setLoading(false)
-      nav('/')
-    }, 800)
+    const result = await register(formData)
+    setLoading(false)
+    
+    if (result.success) {
+      navigate('/dashboard')
+    }
   }
 
-  const handleGoogle = () => {
+  const handleGoogle = async () => {
     setLoading(true)
-    setTimeout(() => {
-      const user = { 
-        name: 'Google User',
-        email: 'google@example.com',
-        token: 'google-token'
-      }
-      login(user)
-      setLoading(false)
-      nav('/')
-    }, 800)
+    const result = await register({
+      name: 'Google User',
+      email: 'google@example.com'
+    })
+    setLoading(false)
+    
+    if (result.success) {
+      navigate('/dashboard')
+    }
   }
 
   return (
@@ -157,9 +151,9 @@ export default function Register() {
 
         <p className="muted">
           Already have an account?{' '}
-          <a href="/login" onClick={(e) => { e.preventDefault(); nav('/login'); }}>
+          <Link to="/auth/login">
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
