@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
+import { realDoctors } from '../data/doctors';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -10,28 +10,20 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState('upcoming');
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [appointmentsRes, doctorsRes] = await Promise.all([
-          axios.get('https://api.medisync.com/v1/appointments', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('medisync_token')}` }
-          }),
-          axios.get('https://api.medisync.com/v1/doctors', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('medisync_token')}` }
-          })
-        ]);
-
-        setAppointments(appointmentsRes.data);
-        setDoctors(doctorsRes.data);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
+    const load = () => {
+      const key = `medisync_bookings_${user?.id || 'guest'}`;
+      const items = JSON.parse(localStorage.getItem(key) || '[]');
+      setAppointments(items);
+      // Recommend top-rated doctors
+      setDoctors(realDoctors.sort((a,b) => b.rating - a.rating).slice(0, 5));
+      setLoading(false);
     };
 
-    fetchDashboardData();
-  }, []);
+    load();
+    const handler = () => load();
+    window.addEventListener('medisync:booked', handler);
+    return () => window.removeEventListener('medisync:booked', handler);
+  }, [user]);
 
   if (loading) {
     return (
@@ -84,20 +76,16 @@ export default function Dashboard() {
               appointments.map(appointment => (
                 <div key={appointment.id} className="appointment-card">
                   <div className="doctor-info">
-                    <img src={appointment.doctor.profile_image} alt="" />
+                    <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(appointment.doctor)}&radius=50`} alt="" className="doctor-avatar" />
                     <div>
-                      <h4>{appointment.doctor.name}</h4>
-                      <p>{appointment.doctor.specialization}</p>
+                      <h4>{appointment.doctor}</h4>
+                      <p>{appointment.specialty || 'Consultation'} {appointment.hospital ? `• ${appointment.hospital}` : ''}</p>
                     </div>
                   </div>
                   <div className="appointment-details">
                     <div className="detail">
-                      <span className="label">Date</span>
-                      <span className="value">{new Date(appointment.date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="detail">
-                      <span className="label">Time</span>
-                      <span className="value">{appointment.time}</span>
+                      <span className="label">Date & Time</span>
+                      <span className="value">{appointment.slot}</span>
                     </div>
                     <div className="detail">
                       <span className="label">Status</span>
@@ -105,8 +93,13 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="appointment-actions">
-                    <button className="btn btn-outline">Reschedule</button>
-                    <button className="btn btn-outline-danger">Cancel</button>
+                    <button className="btn btn-outline" onClick={() => alert('Reschedule coming soon')}>Reschedule</button>
+                    <button className="btn btn-outline-danger" onClick={() => {
+                      const key = `medisync_bookings_${user?.id || 'guest'}`;
+                      const items = JSON.parse(localStorage.getItem(key) || '[]').filter(b => b.id !== appointment.id);
+                      localStorage.setItem(key, JSON.stringify(items));
+                      setAppointments(items);
+                    }}>Cancel</button>
                   </div>
                 </div>
               ))
@@ -120,10 +113,10 @@ export default function Dashboard() {
             <div className="doctors-list">
               {doctors.slice(0, 3).map(doctor => (
                 <div key={doctor.id} className="doctor-card">
-                  <img src={doctor.profile_image} alt="" className="doctor-avatar" />
+                  <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(doctor.name)}&radius=50`} alt="" className="doctor-avatar" />
                   <div className="doctor-info">
                     <h4>{doctor.name}</h4>
-                    <p>{doctor.specialization}</p>
+                    <p>{doctor.specialty}</p>
                     <div className="doctor-rating">
                       <span className="stars">{'★'.repeat(Math.floor(doctor.rating))}</span>
                       <span className="rating-value">({doctor.rating})</span>

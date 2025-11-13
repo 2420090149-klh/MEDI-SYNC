@@ -33,10 +33,27 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      // Simulate sending email confirmation
-      await sendEmailConfirmation(formData, appointment)
+      // Persist booking to localStorage under current user
+      const booking = {
+        id: 'bk_' + Date.now(),
+        userId: user?.id || 'guest',
+        patient: { name: formData.name, email: formData.email, phone: formData.phone },
+        doctor: appointment.doctor,
+        hospital: appointment.hospital,
+        specialty: appointment.specialty,
+        slot: appointment.slot,
+        status: 'confirmed',
+        createdAt: new Date().toISOString(),
+      }
+      const key = `medisync_bookings_${booking.userId}`
+      const prev = JSON.parse(localStorage.getItem(key) || '[]')
+      localStorage.setItem(key, JSON.stringify([booking, ...prev]))
 
-      // Simulate sending WhatsApp message
+      // Fire cross-app event so other components can refresh
+      window.dispatchEvent(new Event('medisync:booked'))
+
+      // Send notifications via mailto/WhatsApp deeplinks (client-side)
+      await sendEmailConfirmation(formData, appointment)
       await sendWhatsAppMessage(formData, appointment)
 
       setStep(2)
@@ -56,47 +73,18 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
 
   // Simulate email sending
   const sendEmailConfirmation = async (data, appt) => {
-    console.log('📧 Sending email to:', data.email)
-    console.log('Email content:', {
-      to: data.email,
-      subject: 'Appointment Confirmation - MediSync',
-      body: `
-        Dear ${data.name},
-        
-        Your appointment has been confirmed!
-        
-        Doctor: ${appt.doctor}
-        Date & Time: ${appt.slot}
-        Phone: ${data.phone}
-        
-        ${data.notes ? `Notes: ${data.notes}` : ''}
-        
-        Please arrive 10 minutes early.
-        
-        Best regards,
-        MediSync Team
-      `
-    })
+    const subject = 'Appointment Confirmation - MediSync'
+    const body = `Dear ${data.name},%0D%0A%0D%0AYour appointment has been confirmed!%0D%0A%0D%0ADoctor: ${encodeURIComponent(appt.doctor)}%0D%0ADate & Time: ${encodeURIComponent(appt.slot)}%0D%0APhone: ${encodeURIComponent(data.phone)}%0D%0A${data.notes ? `Notes: ${encodeURIComponent(data.notes)}%0D%0A` : ''}%0D%0APlease arrive 10 minutes early.%0D%0A%0D%0ABest regards,%0D%0AMediSync Team`
+    const mailto = `mailto:${encodeURIComponent(data.email)}?subject=${encodeURIComponent(subject)}&body=${body}`
+    try { window.open(mailto, '_blank', 'noopener') } catch {}
     return Promise.resolve()
   }
 
   // Simulate WhatsApp message
   const sendWhatsAppMessage = async (data, appt) => {
-    console.log('📱 Sending WhatsApp to:', data.phone)
-    const message = `🏥 *MediSync Appointment Confirmed*
-
-👤 Patient: ${data.name}
-👨‍⚕️ Doctor: ${appt.doctor}
-📅 Date & Time: ${appt.slot}
-
-Please arrive 10 minutes early. Reply CANCEL to cancel your appointment.
-
-Thank you for choosing MediSync! 🙏`
-
-    console.log('WhatsApp message:', message)
-    
-    // In production, this would call WhatsApp Business API
-    // For demo, we'll show it in console and open WhatsApp Web
+    const message = `🏥 MediSync Appointment Confirmed\n\n👤 Patient: ${data.name}\n👨‍⚕️ Doctor: ${appt.doctor}\n📅 Date & Time: ${appt.slot}\n\nPlease arrive 10 minutes early. Reply CANCEL to cancel your appointment.\n\nThank you for choosing MediSync!`;
+    const url = `https://wa.me/${encodeURIComponent(data.phone)}?text=${encodeURIComponent(message)}`
+    try { window.open(url, '_blank', 'noopener') } catch {}
     return Promise.resolve()
   }
 
