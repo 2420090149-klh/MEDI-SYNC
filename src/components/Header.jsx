@@ -38,7 +38,7 @@ export default function Header() {
           </div>
           {user ? (
             <div className="user-menu">
-              <Link to="/dashboard" className="user-chip" aria-label="Open dashboard">
+              <Link to="/dashboard" className="user-chip" aria-label="View my profile and appointments" title="My Profile">
                 <img className="user-avatar" src={user.avatar} alt="" />
                 <span className="user-name">{user.name}</span>
               </Link>

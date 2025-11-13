@@ -35,7 +35,7 @@ export default function Login() {
     const result = await login(formData.email, formData.password)
     setLoading(false)
     if (result.success) {
-      const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/dashboard'
+      const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/'
       navigate(from || fallback, { replace: true })
     }
   }
@@ -44,7 +44,7 @@ export default function Login() {
     showToast(`${provider} login will be integrated in production`)
     setTimeout(() => {
       localStorage.setItem('medisync_token', `${provider}-oauth-token`)
-      const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/dashboard'
+      const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/'
       navigate(from || fallback, { replace: true })
     }, 1000)
   }
