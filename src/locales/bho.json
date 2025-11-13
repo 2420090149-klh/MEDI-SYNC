@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "features": "Features",
+    "problems": "Problems",
+    "technology": "Technology",
+    "requestDemo": "Request Demo"
+  },
+  "hero": {
+    "title": "Smarter hospital scheduling",
+    "subtitle": "Real-time availability for patients and staff",
+    "description": "Connect patients to providers instantly with secure, real-time appointment management."
+  },
+  "common": {
+    "findDoctor": "Find a Doctor",
+    "loginSignup": "Login / Signup",
+    "loading": "Loading...",
+    "readAloud": "Read Aloud",
+    "later": "Later",
+    "continue": "Continue"
+  },
+  "permissions": {
+    "dialogTitle": "Important Permissions",
+    "dialogDescription": "Please allow these permissions to get the best experience with MediSync.",
+    "request": "Allow",
+    "granted": "Allowed",
+    "notifications": {
+      "title": "Notifications",
+      "description": "Get updates about your appointments and important reminders"
+    },
+    "location": {
+      "title": "Location",
+      "description": "Find doctors and hospitals near you"
+    },
+    "microphone": {
+      "title": "Microphone",
+      "description": "Use voice commands and virtual consultations"
+    },
+    "camera": {
+      "title": "Camera",
+      "description": "Take photos of prescriptions and join video consultations"
+    }
+  },
+  "accessibility": {
+    "toolbarLabel": "Accessibility toolbar",
+    "readAloud": "Read aloud",
+    "voice": "Voice",
+    "selectVoice": "Select voice",
+    "noVoices": "No voices available",
+    "increaseFont": "Increase font",
+    "decreaseFont": "Decrease font",
+    "resetFont": "Reset font",
+    "highContrast": "Toggle high contrast",
+    "toggleLarge": "Toggle large font",
+    "sampleText": "Hello — this is a short sample of the voice.",
+    "playSample": "Play voice sample",
+    "playPause": "Play or pause reading",
+    "startReading": "Start reading aloud",
+    "pauseReading": "Pause reading",
+    "playing": "Now playing"
+  }
+}

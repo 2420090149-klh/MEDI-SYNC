@@ -1,0 +1,98 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Hero from './components/Hero';
+import Problems from './components/Problems';
+import Features from './components/Features';
+import Technology from './components/Technology';
+import Find from './components/Find';
+import Footer from './components/Footer';
+import Header from './components/Header';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
+import AIAssistant from './components/AIAssistant';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+
+// Protected Route Component
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth/login" />;
+  }
+  
+  return children;
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AuthProvider>
+        <div className="app">
+          <Routes>
+            {/* Landing Page Route */}
+            <Route 
+              path="/" 
+              element={
+                <>
+                  <a className="skip-link" href="#main">Skip to content</a>
+                  <Header />
+                  <main id="main" className="landing-page">
+                    <Hero />
+                    <Problems />
+                    <Features />
+                    <Technology />
+                    <Find />
+                  </main>
+                  <Footer />
+                  <AIAssistant />
+                </>
+              } 
+            />
+
+            {/* Auth Routes */}
+            <Route 
+              path="/auth/*" 
+              element={
+                <div className="auth-layout">
+                  <Header minimal={true} />
+                  <main id="main" className="auth-pages">
+                    <Routes>
+                      <Route path="login" element={<Login />} />
+                      <Route path="register" element={<Register />} />
+                    </Routes>
+                  </main>
+                </div>
+              } 
+            />
+
+            {/* Dashboard Route */}
+            <Route
+              path="/dashboard/*"
+              element={
+                <ProtectedRoute>
+                  <div className="dashboard-layout">
+                    <Header />
+                    <main id="main">
+                      <Dashboard />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </LanguageProvider>
+  );
+}

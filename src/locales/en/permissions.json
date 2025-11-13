@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "dialogTitle": "Important Permissions",
+    "dialogDescription": "Please allow these permissions to get the best experience with MediSync.",
+    "request": "Allow",
+    "granted": "Allowed",
+    "notifications": {
+      "title": "Notifications",
+      "description": "Get updates about your appointments and important reminders"
+    },
+    "location": {
+      "title": "Location",
+      "description": "Find doctors and hospitals near you"
+    },
+    "microphone": {
+      "title": "Microphone",
+      "description": "Use voice commands and virtual consultations"
+    },
+    "camera": {
+      "title": "Camera",
+      "description": "Take photos of prescriptions and join video consultations"
+    }
+  },
+  "common": {
+    "later": "Later",
+    "continue": "Continue"
+  }
+}
