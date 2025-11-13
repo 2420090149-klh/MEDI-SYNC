@@ -13,6 +13,7 @@ import Dashboard from './components/Dashboard';
 import AIAssistant from './components/AIAssistant';
 import PermissionDialog from './components/PermissionDialog';
 import AccessibilityToolbar from './components/AccessibilityToolbar';
+import ChatBot from './components/ChatBot';
 import { usePermissions } from './contexts/PermissionsContext';
 import { useAuth } from './contexts/AuthContext';
 
@@ -51,6 +52,7 @@ export default function App() {
   return (
     <div className="app">
       <AccessibilityToolbar />
+      <ChatBot />
       <Routes>
         {/* Landing Page Route */}
         <Route
