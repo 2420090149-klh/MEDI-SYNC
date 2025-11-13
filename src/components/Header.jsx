@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
   const toggle = () => setOpen((v) => !v);
 
   return (
@@ -33,6 +36,17 @@ export default function Header() {
           <div className="language-wrap">
             <LanguageSelector />
           </div>
+          {user ? (
+            <div className="user-menu">
+              <Link to="/dashboard" className="user-chip" aria-label="Open dashboard">
+                <img className="user-avatar" src={user.avatar} alt="" />
+                <span className="user-name">{user.name}</span>
+              </Link>
+              <button className="btn btn-outline" onClick={logout}>Logout</button>
+            </div>
+          ) : (
+            <Link className="btn btn-outline" to="/auth/login">Login</Link>
+          )}
         </div>
 
         <button

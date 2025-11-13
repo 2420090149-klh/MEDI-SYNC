@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
           id: 'demo-user',
           email: 'demo@medisync.example',
           name: 'Demo User',
+          avatar: `https://api.dicebear.com/7.x/initials/png?seed=${encodeURIComponent('Demo User')}&backgroundType=gradientLinear&fontFamily=Arial&radius=50`,
           role: 'patient'
         });
         setError(null);
@@ -44,7 +45,11 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.get('https://api.medisync.com/v1/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUser(response.data);
+      const respUser = response.data || {};
+      if (!respUser.avatar) {
+        respUser.avatar = `https://api.dicebear.com/7.x/initials/png?seed=${encodeURIComponent(respUser.name || respUser.email || 'User')}&backgroundType=gradientLinear&fontFamily=Arial&radius=50`;
+      }
+      setUser(respUser);
       setError(null);
     } catch (err) {
       // Silently clear invalid tokens (don't show error on page load)
@@ -64,6 +69,7 @@ export const AuthProvider = ({ children }) => {
         id: email === 'demo@medisync.example' ? 'demo-user' : 'user-' + Date.now(),
         email: email,
         name: email.split('@')[0],
+        avatar: `https://api.dicebear.com/7.x/initials/png?seed=${encodeURIComponent(email.split('@')[0])}&backgroundType=gradientLinear&fontFamily=Arial&radius=50`,
         role: 'patient'
       };
       
