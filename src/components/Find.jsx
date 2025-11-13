@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import Calendar from './Calendar'
+import BookingModal from './BookingModal'
 
 export default function Find(){
   const [results,setResults] = useState(null)
@@ -54,6 +55,7 @@ export default function Find(){
   },[lastQuery])
 
   const [showCal, setShowCal] = React.useState(false)
+  const [bookingAppt, setBookingAppt] = React.useState(null)
 
   return (
     <section id="find" className="find container" aria-labelledby="find-heading">
@@ -76,11 +78,22 @@ export default function Find(){
                 {showCal ? 'Hide calendar' : 'View calendar'}
               </button>
             </div>
-            {!showCal && renderResults(results)}
+            {!showCal && renderResults(results, setBookingAppt, user, navigate)}
             {showCal && <Calendar slots={results} onBooked={refetch} />}
           </>
         )}
       </div>
+
+      {bookingAppt && (
+        <BookingModal
+          appointment={bookingAppt}
+          onClose={() => setBookingAppt(null)}
+          onConfirm={() => {
+            showToast('✅ Appointment booked successfully!')
+            refetch()
+          }}
+        />
+      )}
 
     </section>
   )
@@ -91,7 +104,7 @@ function generateMockSlots(specialty,date){
   return slots.map((s,i)=>({doctor:`Dr. ${specialty.split(' ')[0]} ${i+1}`,slot:`${date} ${s}`}))
 }
 
-function renderResults(items){
+function renderResults(items, setBookingAppt, user, navigate){
   if(!items.length) return <p>No doctors found.</p>
   return (
     <div className="results-grid" role="list">
@@ -104,22 +117,14 @@ function renderResults(items){
           <div className="rc-right">
             <button
               className="btn btn-primary"
-              onClick={async () => {
+              onClick={() => {
                 if(!user){
-                  // redirect to login
                   showToast('Please sign in to book an appointment')
                   navigate('/auth/login')
                   return
                 }
-                try {
-                  await axios.post('/api/book', { id: it.id, doctor: it.doctor, slot: it.slot, patient: user.name })
-                  showToast('Appointment confirmed for ' + it.slot)
-                  // notify parent to refresh results
-                  window.dispatchEvent(new CustomEvent('medisync:booked'))
-                } catch (err) {
-                  if (err?.response?.status === 409) showToast('Slot already booked')
-                  else showToast('Booking failed')
-                }
+                // Open booking modal
+                setBookingAppt(it)
               }}
             >
               Book {it.slot.split(' ')[1]}
