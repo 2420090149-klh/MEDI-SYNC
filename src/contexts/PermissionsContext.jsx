@@ -22,48 +22,28 @@ export function PermissionsProvider({ children }) {
 
   const checkPermissions = async () => {
     try {
-      // Check notification permissions
+      // Check notification permissions (don't request, just check)
       if ('Notification' in window) {
-        const notificationPermission = await Notification.requestPermission();
         setPermissions(prev => ({
           ...prev,
-          notifications: notificationPermission === 'granted'
+          notifications: Notification.permission === 'granted'
         }));
       }
 
-      // Check location permissions
-      if ('geolocation' in navigator) {
+      // Check other permissions by querying, not requesting
+      if ('permissions' in navigator) {
         try {
-          await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-          });
-          setPermissions(prev => ({ ...prev, location: true }));
-        } catch {
-          setPermissions(prev => ({ ...prev, location: false }));
+          const notifPerm = await navigator.permissions.query({ name: 'notifications' });
+          setPermissions(prev => ({
+            ...prev,
+            notifications: notifPerm.state === 'granted'
+          }));
+        } catch (e) {
+          // Fallback already set above
         }
       }
-
-      // Check microphone permissions
-      if (navigator.mediaDevices) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach(track => track.stop());
-          setPermissions(prev => ({ ...prev, microphone: true }));
-        } catch {
-          setPermissions(prev => ({ ...prev, microphone: false }));
-        }
-      }
-
-      // Check camera permissions
-      if (navigator.mediaDevices) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          stream.getTracks().forEach(track => track.stop());
-          setPermissions(prev => ({ ...prev, camera: true }));
-        } catch {
-          setPermissions(prev => ({ ...prev, camera: false }));
-        }
-      }
+    } catch (error) {
+      console.error('Error checking permissions:', error);
     } finally {
       setLoading(false);
     }

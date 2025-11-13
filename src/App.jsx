@@ -14,8 +14,7 @@ import AIAssistant from './components/AIAssistant';
 import PermissionDialog from './components/PermissionDialog';
 import AccessibilityToolbar from './components/AccessibilityToolbar';
 import { usePermissions } from './contexts/PermissionsContext';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { useAuth } from './contexts/AuthContext';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -50,67 +49,62 @@ export default function App() {
   }, [permLoading, permissions]);
 
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <div className="app">
-          <AccessibilityToolbar />
-          <Routes>
-            {/* Landing Page Route */}
-            <Route
-              path="/"
-              element={
-                // Debug: render Header + Hero to check if Hero causes runtime crash
-                <>
-                  <a className="skip-link" href="#main">Skip to content</a>
-                  <Header />
-                  <main id="main" className="landing-page">
-                    <Hero />
-                    <Problems />
-                    <Features />
-                    <Technology />
-                    <Find />
-                    <Footer />
-                  </main>
-                  {showPermissions && (
-                    <PermissionDialog onClose={() => setShowPermissions(false)} />
-                  )}
-                </>
-              }
-            />
+    <div className="app">
+      <AccessibilityToolbar />
+      <Routes>
+        {/* Landing Page Route */}
+        <Route
+          path="/"
+          element={
+            <>
+              <a className="skip-link" href="#main">Skip to content</a>
+              <Header />
+              <main id="main" className="landing-page">
+                <Hero />
+                <Problems />
+                <Features />
+                <Technology />
+                <Find />
+                <Footer />
+              </main>
+              {showPermissions && (
+                <PermissionDialog onClose={() => setShowPermissions(false)} />
+              )}
+            </>
+          }
+        />
 
-            {/* Auth Routes */}
-            <Route
-              path="/auth/*"
-              element={
-                <div className="auth-layout">
-                  <Header minimal={true} />
-                  <main id="main" className="auth-pages">
-                    <Routes>
-                      <Route path="login" element={<Login />} />
-                      <Route path="register" element={<Register />} />
-                    </Routes>
-                  </main>
-                </div>
-              }
-            />
+        {/* Auth Routes */}
+        <Route
+          path="/auth/*"
+          element={
+            <div className="auth-layout">
+              <Header minimal={true} />
+              <main id="main" className="auth-pages">
+                <Routes>
+                  <Route path="login" element={<Login />} />
+                  <Route path="register" element={<Register />} />
+                </Routes>
+              </main>
+            </div>
+          }
+        />
 
-            {/* Dashboard Route */}
-            <Route
-              path="/dashboard/*"
-              element={
-                <ProtectedRoute>
-                  <div className="dashboard-layout">
-                    <Header />
-                    <main id="main">
-                      <Dashboard />
-                    </main>
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </div>
-      </AuthProvider>
-    </LanguageProvider>
+        {/* Dashboard Route */}
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <div className="dashboard-layout">
+                <Header />
+                <main id="main">
+                  <Dashboard />
+                </main>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 }
