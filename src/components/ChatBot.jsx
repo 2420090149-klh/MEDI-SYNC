@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getDoctorsBySpecialty } from '../data/doctors';
 import '../styles/ChatBot.css';
 
 // Symptom to specialty mapping
@@ -224,9 +225,44 @@ export default function ChatBot() {
                   {msg.specialists && (
                     <div className="specialists-list">
                       {msg.specialists.map((spec, i) => (
-                        <div key={i} className="specialist-chip">
+                        <button
+                          key={i}
+                          className="specialist-chip clickable"
+                          onClick={() => {
+                            // Scroll to Find section and pre-fill specialty
+                            const findSection = document.getElementById('find');
+                            const specialtyInput = document.getElementById('specialty');
+                            
+                            if (findSection && specialtyInput) {
+                              // Pre-fill the specialty
+                              specialtyInput.value = spec;
+                              
+                              // Set today's date
+                              const dateInput = document.getElementById('date');
+                              if (dateInput) {
+                                const today = new Date().toISOString().split('T')[0];
+                                dateInput.value = today;
+                              }
+                              
+                              // Close chatbot
+                              setIsOpen(false);
+                              
+                              // Scroll to find section
+                              findSection.scrollIntoView({ behavior: 'smooth' });
+                              
+                              // Auto-trigger search after a short delay
+                              setTimeout(() => {
+                                const searchForm = document.getElementById('searchForm');
+                                if (searchForm) {
+                                  searchForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                                }
+                              }, 800);
+                            }
+                          }}
+                        >
                           👨‍⚕️ {spec}
-                        </div>
+                          <span className="click-hint">Click to book</span>
+                        </button>
                       ))}
                     </div>
                   )}

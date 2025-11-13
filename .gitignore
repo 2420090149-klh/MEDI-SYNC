@@ -51,3 +51,4 @@ server/package-lock.json
 # Lock files (keep package-lock.json in version control)
 # Uncomment the next line if you want to exclude lock files
 # package-lock.json
+.vercel

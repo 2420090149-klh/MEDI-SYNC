@@ -35,11 +35,35 @@ export default function Hero() {
               onClick={() => {
                 const text = `${t('hero.title')} - ${t('hero.subtitle')}. ${t('hero.description')}`;
                 const utter = new SpeechSynthesisUtterance(text);
+                
                 // Set proper language for the utterance
                 const langCode = languages[currentLanguage]?.speechLang || 'en-US';
                 utter.lang = langCode;
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(utter);
+                
+                // Wait for voices to load
+                const speak = () => {
+                  const voices = window.speechSynthesis.getVoices();
+                  
+                  // Try to find a voice for the selected language
+                  const preferredVoice = voices.find(voice => 
+                    voice.lang.startsWith(langCode.split('-')[0]) || 
+                    voice.lang === langCode
+                  );
+                  
+                  if (preferredVoice) {
+                    utter.voice = preferredVoice;
+                  }
+                  
+                  window.speechSynthesis.cancel();
+                  window.speechSynthesis.speak(utter);
+                };
+                
+                // Voices may not be loaded immediately
+                if (window.speechSynthesis.getVoices().length > 0) {
+                  speak();
+                } else {
+                  window.speechSynthesis.onvoiceschanged = speak;
+                }
               }}
             >
               🔊 {t('common.readAloud')}

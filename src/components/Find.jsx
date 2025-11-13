@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import Calendar from './Calendar'
 import BookingModal from './BookingModal'
+import { getDoctorsBySpecialty, getAvailableSlots } from '../data/doctors'
 
 export default function Find(){
   const [results,setResults] = useState(null)
@@ -99,9 +100,41 @@ export default function Find(){
   )
 }
 
-function generateMockSlots(specialty,date){
-  const slots = ["09:00 AM","10:30 AM","12:00 PM","02:00 PM","04:30 PM"]
-  return slots.map((s,i)=>({doctor:`Dr. ${specialty.split(' ')[0]} ${i+1}`,slot:`${date} ${s}`}))
+function generateMockSlots(specialty, date) {
+  // Try to get real doctors for this specialty
+  const doctors = getDoctorsBySpecialty(specialty);
+  
+  if (doctors.length > 0) {
+    // Use real doctors
+    const results = [];
+    doctors.forEach(doctor => {
+      const slots = getAvailableSlots(doctor.id, date);
+      slots.forEach(timeSlot => {
+        results.push({
+          id: `${doctor.id}-${timeSlot}`,
+          doctor: doctor.name,
+          specialty: doctor.specialty,
+          hospital: doctor.hospital,
+          slot: `${date} ${timeSlot}`,
+          rating: doctor.rating,
+          experience: doctor.experience
+        });
+      });
+    });
+    return results;
+  }
+  
+  // Fallback to mock data if no real doctors found
+  const slots = ["09:00 AM","10:30 AM","12:00 PM","02:00 PM","04:30 PM"];
+  return slots.map((s,i)=>({
+    id: `mock-${i}`,
+    doctor: `Dr. ${specialty.split(' ')[0]} ${i+1}`,
+    specialty: specialty,
+    hospital: "General Hospital",
+    slot: `${date} ${s}`,
+    rating: 4.5,
+    experience: "10 years"
+  }));
 }
 
 function renderResults(items, setBookingAppt, user, navigate){
@@ -109,14 +142,24 @@ function renderResults(items, setBookingAppt, user, navigate){
   return (
     <div className="results-grid" role="list">
       {items.map((it,idx)=>(
-        <div key={idx} className="result-card" role="listitem" tabIndex={0}>
+        <div key={idx} className="result-card enhanced" role="listitem" tabIndex={0}>
           <div className="rc-left">
-            <strong>{it.doctor}</strong>
-            <div className="muted">{it.slot.split(' ')[0]} • {it.slot.split(' ')[1]}</div>
+            <div className="doctor-info">
+              <strong className="doctor-name">{it.doctor}</strong>
+              {it.hospital && <div className="hospital-name">🏥 {it.hospital}</div>}
+              <div className="doctor-meta">
+                {it.rating && <span className="rating">⭐ {it.rating}</span>}
+                {it.experience && <span className="experience">👨‍⚕️ {it.experience}</span>}
+              </div>
+            </div>
+            <div className="slot-info">
+              <span className="slot-date">📅 {it.slot.split(' ')[0]}</span>
+              <span className="slot-time">🕐 {it.slot.split(' ')[1]} {it.slot.split(' ')[2]}</span>
+            </div>
           </div>
           <div className="rc-right">
             <button
-              className="btn btn-primary"
+              className="btn btn-primary book-btn"
               onClick={() => {
                 if(!user){
                   showToast('Please sign in to book an appointment')
@@ -127,7 +170,7 @@ function renderResults(items, setBookingAppt, user, navigate){
                 setBookingAppt(it)
               }}
             >
-              Book {it.slot.split(' ')[1]}
+              📋 Book Now
             </button>
           </div>
         </div>
