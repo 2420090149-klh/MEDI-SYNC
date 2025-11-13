@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Auth.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [userType, setUserType] = useState('patient');
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const from = location.state?.from || null;
 
   const validateForm = () => {
     const newErrors = {}
@@ -33,7 +35,8 @@ export default function Login() {
     const result = await login(formData.email, formData.password)
     setLoading(false)
     if (result.success) {
-      navigate(userType === 'doctor' ? '/doctor-dashboard' : '/dashboard')
+      const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/dashboard'
+      navigate(from || fallback, { replace: true })
     }
   }
 
@@ -41,13 +44,26 @@ export default function Login() {
     showToast(`${provider} login will be integrated in production`)
     setTimeout(() => {
       localStorage.setItem('medisync_token', `${provider}-oauth-token`)
-      navigate(userType === 'doctor' ? '/doctor-dashboard' : '/dashboard')
+      const fallback = userType === 'doctor' ? '/doctor-dashboard' : '/dashboard'
+      navigate(from || fallback, { replace: true })
     }, 1000)
   }
 
   return (
     <div className="auth-page container">
-      <div className="auth-container">
+      <div className="auth-shell">
+        <aside className="auth-hero" aria-hidden="true">
+          <div className="hero-content">
+            <div className="brand">MediSync</div>
+            <h1>Smarter Healthcare, Seamless Appointments</h1>
+            <ul className="hero-highlights">
+              <li>Search specialists and book in seconds</li>
+              <li>Multilingual voice assistance and accessibility</li>
+              <li>Trusted doctors across leading hospitals</li>
+            </ul>
+          </div>
+        </aside>
+        <div className="auth-container">
         <div className="user-type-selector">
           <button className={`type-btn ${userType === 'patient' ? 'active' : ''}`} onClick={() => setUserType('patient')}>
             <span className="type-icon">👤</span><span>Patient Login</span>
@@ -100,7 +116,11 @@ export default function Login() {
 
           <div className="auth-footer">
             <p>Don't have an account? <Link to="/auth/register" className="link">Sign up</Link></p>
+            <p style={{marginTop:12}}>
+              <button type="button" className="link" onClick={() => navigate('/')}>Continue as guest</button>
+            </p>
           </div>
+        </div>
         </div>
       </div>
     </div>

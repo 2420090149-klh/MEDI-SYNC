@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Hero from './components/Hero';
 import Problems from './components/Problems';
 import Features from './components/Features';
@@ -20,6 +20,7 @@ import { useAuth } from './contexts/AuthContext';
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -31,7 +32,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" />;
+    return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
   }
 
   return children;
@@ -51,6 +52,8 @@ export default function App() {
 
   return (
     <div className="app">
+      <AccessibilityToolbar />
+      <ChatBot />
       <Routes>
         {/* Public Auth Routes */}
         <Route
@@ -67,29 +70,25 @@ export default function App() {
           }
         />
 
-        {/* Protected Landing Page Route */}
+        {/* Public Landing Page Route (no login required) */}
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <>
-                <AccessibilityToolbar />
-                <ChatBot />
-                <a className="skip-link" href="#main">Skip to content</a>
-                <Header />
-                <main id="main" className="landing-page">
-                  <Hero />
-                  <Problems />
-                  <Features />
-                  <Technology />
-                  <Find />
-                  <Footer />
-                </main>
-                {showPermissions && (
-                  <PermissionDialog onClose={() => setShowPermissions(false)} />
-                )}
-              </>
-            </ProtectedRoute>
+            <>
+              <a className="skip-link" href="#main">Skip to content</a>
+              <Header />
+              <main id="main" className="landing-page">
+                <Hero />
+                <Problems />
+                <Features />
+                <Technology />
+                <Find />
+                <Footer />
+              </main>
+              {showPermissions && (
+                <PermissionDialog onClose={() => setShowPermissions(false)} />
+              )}
+            </>
           }
         />
 
@@ -98,8 +97,6 @@ export default function App() {
           path="/dashboard/*"
           element={
             <ProtectedRoute>
-              <AccessibilityToolbar />
-              <ChatBot />
               <div className="dashboard-layout">
                 <Header />
                 <main id="main">
