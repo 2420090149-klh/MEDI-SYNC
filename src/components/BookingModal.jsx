@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import emailjs from '@emailjs/browser'
 import '../styles/BookingModal.css'
 
 export default function BookingModal({ appointment, onClose, onConfirm }) {
@@ -7,6 +8,7 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
+    countryCode: '+91',
     phone: '',
     timeSlot: appointment?.slot || '',
     notes: ''
@@ -27,6 +29,8 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
       return
     }
 
+    const fullPhone = formData.countryCode + formData.phone
+
     setLoading(true)
 
     try {
@@ -37,7 +41,7 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
       const booking = {
         id: 'bk_' + Date.now(),
         userId: user?.id || 'guest',
-        patient: { name: formData.name, email: formData.email, phone: formData.phone },
+        patient: { name: formData.name, email: formData.email, phone: fullPhone },
         doctor: appointment.doctor,
         hospital: appointment.hospital,
         specialty: appointment.specialty,
@@ -52,9 +56,9 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
       // Fire cross-app event so other components can refresh
       window.dispatchEvent(new Event('medisync:booked'))
 
-      // Send notifications via mailto/WhatsApp deeplinks (client-side)
+      // Send notifications via EmailJS and WhatsApp
       await sendEmailConfirmation(formData, appointment)
-      await sendWhatsAppMessage(formData, appointment)
+      await sendWhatsAppMessage(fullPhone, formData, appointment)
 
       setStep(2)
       setLoading(false)
@@ -71,19 +75,43 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
     }
   }
 
-  // Simulate email sending
+  // Send email confirmation using EmailJS
   const sendEmailConfirmation = async (data, appt) => {
-    const subject = 'Appointment Confirmation - MediSync'
-    const body = `Dear ${data.name},%0D%0A%0D%0AYour appointment has been confirmed!%0D%0A%0D%0ADoctor: ${encodeURIComponent(appt.doctor)}%0D%0ADate & Time: ${encodeURIComponent(appt.slot)}%0D%0APhone: ${encodeURIComponent(data.phone)}%0D%0A${data.notes ? `Notes: ${encodeURIComponent(data.notes)}%0D%0A` : ''}%0D%0APlease arrive 10 minutes early.%0D%0A%0D%0ABest regards,%0D%0AMediSync Team`
-    const mailto = `mailto:${encodeURIComponent(data.email)}?subject=${encodeURIComponent(subject)}&body=${body}`
-    try { window.open(mailto, '_blank', 'noopener') } catch {}
+    try {
+      // Initialize EmailJS with your public key
+      emailjs.init('YOUR_PUBLIC_KEY') // Replace with your EmailJS public key
+      
+      const templateParams = {
+        to_email: data.email,
+        to_name: data.name,
+        doctor_name: appt.doctor,
+        hospital: appt.hospital || 'Hospital',
+        specialty: appt.specialty || 'Consultation',
+        appointment_slot: appt.slot,
+        patient_phone: data.countryCode + data.phone,
+        notes: data.notes || 'None',
+        from_name: 'MediSync Team'
+      }
+
+      // Send email using EmailJS
+      // Replace 'YOUR_SERVICE_ID' and 'YOUR_TEMPLATE_ID' with your EmailJS credentials
+      await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+      console.log('✅ Email sent successfully to:', data.email)
+    } catch (error) {
+      console.error('❌ Email sending failed:', error)
+      // Fallback to mailto if EmailJS fails
+      const subject = 'Appointment Confirmation - MediSync'
+      const body = `Dear ${data.name},%0D%0A%0D%0AYour appointment has been confirmed!%0D%0A%0D%0ADoctor: ${encodeURIComponent(appt.doctor)}%0D%0ADate & Time: ${encodeURIComponent(appt.slot)}%0D%0APhone: ${data.countryCode}${data.phone}%0D%0A${data.notes ? `Notes: ${encodeURIComponent(data.notes)}%0D%0A` : ''}%0D%0APlease arrive 10 minutes early.%0D%0A%0D%0ABest regards,%0D%0AMediSync Team`
+      const mailto = `mailto:${encodeURIComponent(data.email)}?subject=${encodeURIComponent(subject)}&body=${body}`
+      try { window.open(mailto, '_blank', 'noopener') } catch {}
+    }
     return Promise.resolve()
   }
 
-  // Simulate WhatsApp message
-  const sendWhatsAppMessage = async (data, appt) => {
+  // Send WhatsApp message
+  const sendWhatsAppMessage = async (fullPhone, data, appt) => {
     const message = `🏥 MediSync Appointment Confirmed\n\n👤 Patient: ${data.name}\n👨‍⚕️ Doctor: ${appt.doctor}\n📅 Date & Time: ${appt.slot}\n\nPlease arrive 10 minutes early. Reply CANCEL to cancel your appointment.\n\nThank you for choosing MediSync!`;
-    const url = `https://wa.me/${encodeURIComponent(data.phone)}?text=${encodeURIComponent(message)}`
+    const url = `https://wa.me/${fullPhone.replace(/\+/g, '')}?text=${encodeURIComponent(message)}`
     try { window.open(url, '_blank', 'noopener') } catch {}
     return Promise.resolve()
   }
@@ -102,11 +130,11 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
             <p><strong>Patient:</strong> {formData.name}</p>
             <p><strong>Doctor:</strong> {appointment.doctor}</p>
             <p><strong>Date & Time:</strong> {appointment.slot}</p>
-            <p><strong>Phone:</strong> {formData.phone}</p>
+            <p><strong>Phone:</strong> {formData.countryCode} {formData.phone}</p>
           </div>
           <div className="notification-status">
             <p>📧 Email confirmation sent to: <strong>{formData.email}</strong></p>
-            <p>📱 WhatsApp message sent to: <strong>{formData.phone}</strong></p>
+            <p>📱 WhatsApp message sent to: <strong>{formData.countryCode} {formData.phone}</strong></p>
           </div>
           <p className="closing-message">This window will close automatically...</p>
         </div>
@@ -143,17 +171,37 @@ export default function BookingModal({ appointment, onClose, onConfirm }) {
 
           <div className="form-group">
             <label htmlFor="phone">Phone Number *</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              placeholder="10-digit mobile number"
-              pattern="\d{10}"
-              maxLength="10"
-            />
+            <div className="phone-input-group">
+              <select
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={handleChange}
+                className="country-code-select"
+              >
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+61">🇦🇺 +61</option>
+                <option value="+971">🇦🇪 +971</option>
+                <option value="+65">🇸🇬 +65</option>
+                <option value="+60">🇲🇾 +60</option>
+                <option value="+81">🇯🇵 +81</option>
+                <option value="+82">🇰🇷 +82</option>
+                <option value="+86">🇨🇳 +86</option>
+              </select>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                placeholder="10-digit mobile number"
+                pattern="\d{10}"
+                maxLength="10"
+                className="phone-number-input"
+              />
+            </div>
             <small>We'll send WhatsApp confirmation to this number</small>
           </div>
 
